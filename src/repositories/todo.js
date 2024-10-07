@@ -7,14 +7,39 @@ export default (db) => {
     }
 
     async function findAllIncomplete(page, pageSize) {
-        return await collection.insertOne(page);
+
+        return await collection.find({completed: false})
+            .limit(pageSize)
+            .skip(pageSize * page)
+            .sort('created')
+            .toArray();
     }
 
     async function findAll(page, pageSize) {
-        return await collection.();
+        return await collection.find()
+            .limit(pageSize)
+            .skip(pageSize * page)
+            .sort('created')
+            .toArray();
+    }
+
+    async function toggleCompleted(todoId, userID, completed) {
+        return await collection.updateOne(
+            {
+                todoId: todoId,
+                userID: userID
+            },
+            {
+                $set: {
+                    completed: completed
+                }
+            });
     }
 
     return {
-        insertOne
+        insertOne,
+        findAllIncomplete,
+        findAll,
+        toggleCompleted
     };
 };

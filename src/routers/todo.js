@@ -40,5 +40,38 @@ export default ({todoRepository}) => {
         }
     });
 
+    router.post('/toggleCompleted', auth, async (req, res) => {
+        try {
+            //let session = verifyToken(req.cookies['todox-session']);
+
+            let resultTodo = await todoRepository.toggleCompleted(req.todoID, /*session.userID*/ "test", req.completed);
+            return res.status(201).send(resultTodo);
+        }
+        catch (err) {
+            console.error(err);
+            return res.status(500).send({error: "Todo creation failed."});
+        }
+    });
+
+    router.get('/', auth, async (req, res) => {
+        try {
+            verifyToken(req.cookies['todox-session']);
+
+            if (req.findIncomplete) {
+                let result = await todoRepository.findAllIncomplete(Number(req.body.page), Number(req.body.pageSize));
+                console.log(result);
+                return res.status(200).send(result);
+            } else {
+                let result = await todoRepository.findAll(Number(req.body.page), Number(req.body.pageSize));
+                console.log(result);
+                return res.status(200).send(result);
+            }
+        }
+        catch (err) {
+            console.error(err);
+            return res.status(500).send({error: "Fetch todos failed"});
+        }
+    });
+
     return router;
 }
