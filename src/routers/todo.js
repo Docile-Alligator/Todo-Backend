@@ -57,13 +57,11 @@ export default ({todoRepository}) => {
         try {
             verifyToken(req.cookies['todox-session']);
 
-            if (req.findIncomplete) {
-                let result = await todoRepository.findAllIncomplete(Number(req.body.page), Number(req.body.pageSize));
-                console.log(result);
+            if (req.query.findIncomplete === "true") {
+                let result = await todoRepository.findAllIncomplete(Number(req.query.page), Number(req.query.pageSize));
                 return res.status(200).send(result);
             } else {
-                let result = await todoRepository.findAll(Number(req.body.page), Number(req.body.pageSize));
-                console.log(result);
+                let result = await todoRepository.findAll(Number(req.query.page), Number(req.query.pageSize));
                 return res.status(200).send(result);
             }
         }
