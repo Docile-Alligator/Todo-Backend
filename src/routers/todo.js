@@ -23,7 +23,8 @@ export default ({todoRepository}) => {
                 ...req.body,
                 todoID,
                 userID: session.userID,
-                created
+                created,
+                completed: false
             };
 
             if (validateTodo(newTodo)) {

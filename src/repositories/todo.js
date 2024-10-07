@@ -6,6 +6,14 @@ export default (db) => {
         return await collection.insertOne(todo);
     }
 
+    async function findAllIncomplete(page, pageSize) {
+        return await collection.insertOne(page);
+    }
+
+    async function findAll(page, pageSize) {
+        return await collection.();
+    }
+
     return {
         insertOne
     };
