@@ -42,14 +42,14 @@ export default ({todoRepository}) => {
 
     router.post('/toggleCompleted', auth, async (req, res) => {
         try {
-            //let session = verifyToken(req.cookies['todox-session']);
+            let session = verifyToken(req.cookies['todox-session']);
 
-            let resultTodo = await todoRepository.toggleCompleted(req.todoID, /*session.userID*/ "test", req.completed);
-            return res.status(201).send(resultTodo);
+            let result = await todoRepository.toggleCompleted(req.body.todoID, session.userID, req.body.completed);
+            return res.status(200).send(result);
         }
         catch (err) {
             console.error(err);
-            return res.status(500).send({error: "Todo creation failed."});
+            return res.status(500).send({error: "Toggling todo failed."});
         }
     });
 
@@ -57,8 +57,10 @@ export default ({todoRepository}) => {
         try {
             verifyToken(req.cookies['todox-session']);
 
+            console.log("wut");
             if (req.query.findIncomplete === "true") {
                 let result = await todoRepository.findAllIncomplete(Number(req.query.page), Number(req.query.pageSize));
+                console.log(result);
                 return res.status(200).send(result);
             } else {
                 let result = await todoRepository.findAll(Number(req.query.page), Number(req.query.pageSize));

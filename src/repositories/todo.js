@@ -23,10 +23,10 @@ export default (db) => {
             .toArray();
     }
 
-    async function toggleCompleted(todoId, userID, completed) {
+    async function toggleCompleted(todoID, userID, completed) {
         return await collection.updateOne(
             {
-                todoId: todoId,
+                todoID: todoID,
                 userID: userID
             },
             {
