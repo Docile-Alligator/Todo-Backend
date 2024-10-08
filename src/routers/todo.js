@@ -53,14 +53,25 @@ export default ({todoRepository}) => {
         }
     });
 
+    router.post('/editName', auth, async (req, res) => {
+        try {
+            let session = verifyToken(req.cookies['todox-session']);
+
+            let result = await todoRepository.editName(req.body.todoID, session.userID, req.body.newTodoName);
+            return res.status(200).send(result);
+        }
+        catch (err) {
+            console.error(err);
+            return res.status(500).send({error: "Editing todo name failed."});
+        }
+    });
+
     router.get('/', auth, async (req, res) => {
         try {
             verifyToken(req.cookies['todox-session']);
 
-            console.log("wut");
             if (req.query.findIncomplete === "true") {
                 let result = await todoRepository.findAllIncomplete(Number(req.query.page), Number(req.query.pageSize));
-                console.log(result);
                 return res.status(200).send(result);
             } else {
                 let result = await todoRepository.findAll(Number(req.query.page), Number(req.query.pageSize));

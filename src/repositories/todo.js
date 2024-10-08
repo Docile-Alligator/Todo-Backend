@@ -36,10 +36,24 @@ export default (db) => {
             });
     }
 
+    async function editName(todoID, userID, newName) {
+        return await collection.updateOne(
+            {
+                todoID: todoID,
+                userID: userID
+            },
+            {
+                $set: {
+                    name: newName
+                }
+            });
+    }
+
     return {
         insertOne,
         findAllIncomplete,
         findAll,
-        toggleCompleted
+        toggleCompleted,
+        editName
     };
 };
