@@ -6,19 +6,20 @@ export default (db) => {
         return await collection.insertOne(todo);
     }
 
-    async function findAllIncomplete(page, pageSize) {
-
-        return await collection.find({completed: false})
+    async function find(before, after, pageSize, otherConditions = {}) {
+        console.log(otherConditions);
+        let filter;
+        if (after !== 'undefined') {
+            filter = { created: { $gt: after }, ...otherConditions };
+        } else if (before !== 'undefined') {
+            filter = { created: { $lt: before }, ...otherConditions };
+        } else {
+            filter = { ...otherConditions };
+        }
+        console.log("filter");
+        console.log(filter);
+        return await collection.find(filter)
             .limit(pageSize)
-            .skip(pageSize * page)
-            .sort('created')
-            .toArray();
-    }
-
-    async function findAll(page, pageSize) {
-        return await collection.find()
-            .limit(pageSize)
-            .skip(pageSize * page)
             .sort('created')
             .toArray();
     }
@@ -51,8 +52,7 @@ export default (db) => {
 
     return {
         insertOne,
-        findAllIncomplete,
-        findAll,
+        find,
         toggleCompleted,
         editName
     };

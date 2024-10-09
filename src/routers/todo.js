@@ -40,6 +40,35 @@ export default ({todoRepository}) => {
         }
     });
 
+    router.get('/', auth, async (req, res) => {
+        try {
+            verifyToken(req.cookies['todox-session']);
+            console.log(req.query);
+
+            if (req.query.findIncomplete === "true") {
+                let result = await todoRepository.find(req.query.before, req.query.after, Number(req.query.pageSize), { completed: false });
+                console.log(result);
+                if (result.length === 0) {
+                    // No more todos
+                    return res.status(200).send({ result: result });
+                } else {
+                    return res.status(200).send({ result: result, before: result[0].created, after: result[result.length - 1].created });
+                }
+            } else {
+                let result = await todoRepository.find(req.query.before, req.query.after, Number(req.query.pageSize));
+                if (result.length === 0) {
+                    return res.status(200).send({ result: result });
+                } else {
+                    return res.status(200).send({ result: result, before: result[0].created, after: result[result.length - 1].created });
+                }
+            }
+        }
+        catch (err) {
+            console.error(err);
+            return res.status(500).send({error: "Fetch todos failed"});
+        }
+    });
+
     router.post('/toggleCompleted', auth, async (req, res) => {
         try {
             let session = verifyToken(req.cookies['todox-session']);
@@ -63,24 +92,6 @@ export default ({todoRepository}) => {
         catch (err) {
             console.error(err);
             return res.status(500).send({error: "Editing todo name failed."});
-        }
-    });
-
-    router.get('/', auth, async (req, res) => {
-        try {
-            verifyToken(req.cookies['todox-session']);
-
-            if (req.query.findIncomplete === "true") {
-                let result = await todoRepository.findAllIncomplete(Number(req.query.page), Number(req.query.pageSize));
-                return res.status(200).send(result);
-            } else {
-                let result = await todoRepository.findAll(Number(req.query.page), Number(req.query.pageSize));
-                return res.status(200).send(result);
-            }
-        }
-        catch (err) {
-            console.error(err);
-            return res.status(500).send({error: "Fetch todos failed"});
         }
     });
 
