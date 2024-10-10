@@ -67,6 +67,19 @@ export default ({todoRepository}) => {
         }
     });
 
+    router.delete('/', auth, async (req, res) => {
+        try {
+            let session = verifyToken(req.cookies['todox-session']);
+
+            let result = await todoRepository.deleteTodo(req.body.todoID, session.userID);
+            return res.status(200).send(result);
+        }
+        catch (err) {
+            console.error(err);
+            return res.status(500).send({error: "Deleting todo name failed."});
+        }
+    });
+
     router.post('/toggleCompleted', auth, async (req, res) => {
         try {
             let session = verifyToken(req.cookies['todox-session']);
@@ -90,19 +103,6 @@ export default ({todoRepository}) => {
         catch (err) {
             console.error(err);
             return res.status(500).send({error: "Editing todo name failed."});
-        }
-    });
-
-    router.delete('/delete', auth, async (req, res) => {
-        try {
-            let session = verifyToken(req.cookies['todox-session']);
-
-            let result = await todoRepository.deleteTodo(req.body.todoID, session.userID);
-            return res.status(200).send(result);
-        }
-        catch (err) {
-            console.error(err);
-            return res.status(500).send({error: "Deleting todo name failed."});
         }
     });
 
