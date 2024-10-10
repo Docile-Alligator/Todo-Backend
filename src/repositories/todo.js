@@ -56,10 +56,18 @@ export default (db) => {
             });
     }
 
+    async function deleteTodo(todoID, userID) {
+        return await collection.deleteOne({
+            todoID: todoID,
+            userID: userID
+        });
+    }
+
     return {
         insertOne,
         find,
         toggleCompleted,
-        editName
+        editName,
+        deleteTodo
     };
 };

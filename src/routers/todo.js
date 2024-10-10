@@ -93,5 +93,18 @@ export default ({todoRepository}) => {
         }
     });
 
+    router.delete('/delete', auth, async (req, res) => {
+        try {
+            let session = verifyToken(req.cookies['todox-session']);
+
+            let result = await todoRepository.deleteTodo(req.body.todoID, session.userID);
+            return res.status(200).send(result);
+        }
+        catch (err) {
+            console.error(err);
+            return res.status(500).send({error: "Deleting todo name failed."});
+        }
+    });
+
     return router;
 }
