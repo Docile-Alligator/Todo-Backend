@@ -43,11 +43,9 @@ export default ({todoRepository}) => {
     router.get('/', auth, async (req, res) => {
         try {
             verifyToken(req.cookies['todox-session']);
-            console.log(req.query);
 
             if (req.query.findIncomplete === "true") {
                 let result = await todoRepository.find(req.query.before, req.query.after, Number(req.query.pageSize), { completed: false });
-                console.log(result);
                 if (result.length === 0) {
                     // No more todos
                     return res.status(200).send({ result: result });

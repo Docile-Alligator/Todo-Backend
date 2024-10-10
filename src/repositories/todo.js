@@ -7,21 +7,27 @@ export default (db) => {
     }
 
     async function find(before, after, pageSize, otherConditions = {}) {
-        console.log(otherConditions);
         let filter;
+        let sort;
+        let isUsingBefore = false;
+
         if (after !== 'undefined') {
             filter = { created: { $gt: after }, ...otherConditions };
+            sort = { created: 1 };
         } else if (before !== 'undefined') {
             filter = { created: { $lt: before }, ...otherConditions };
+            sort = { created: -1 };
+            isUsingBefore = true;
         } else {
             filter = { ...otherConditions };
+            sort = { created: 1 };
         }
-        console.log("filter");
-        console.log(filter);
-        return await collection.find(filter)
+
+        const result = await collection.find(filter)
             .limit(pageSize)
-            .sort('created')
+            .sort(sort)
             .toArray();
+        return isUsingBefore ? result.reverse() : result;
     }
 
     async function toggleCompleted(todoID, userID, completed) {
