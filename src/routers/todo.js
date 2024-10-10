@@ -63,7 +63,7 @@ export default ({todoRepository}) => {
         }
         catch (err) {
             console.error(err);
-            return res.status(500).send({error: "Fetch todos failed"});
+            return res.status(500).send({error: "Fetching todos failed"});
         }
     });
 
@@ -80,29 +80,23 @@ export default ({todoRepository}) => {
         }
     });
 
-    router.post('/toggleCompleted', auth, async (req, res) => {
+    router.put('/', auth, async (req, res) => {
         try {
             let session = verifyToken(req.cookies['todox-session']);
 
-            let result = await todoRepository.toggleCompleted(req.body.todoID, session.userID, req.body.completed);
-            return res.status(200).send(result);
+            if (req.body.completed !== undefined) {
+                let result = await todoRepository.toggleCompleted(req.body.todoID, session.userID, req.body.completed);
+                return res.status(200).send(result);
+            } else if (req.body.newTodoName !== undefined) {
+                let result = await todoRepository.editName(req.body.todoID, session.userID, req.body.newTodoName);
+                return res.status(200).send(result);
+            } else {
+                return res.status(400).send({ error: "Nothing to update" });
+            }
         }
         catch (err) {
             console.error(err);
-            return res.status(500).send({error: "Toggling todo failed."});
-        }
-    });
-
-    router.post('/editName', auth, async (req, res) => {
-        try {
-            let session = verifyToken(req.cookies['todox-session']);
-
-            let result = await todoRepository.editName(req.body.todoID, session.userID, req.body.newTodoName);
-            return res.status(200).send(result);
-        }
-        catch (err) {
-            console.error(err);
-            return res.status(500).send({error: "Editing todo name failed."});
+            return res.status(500).send({ error: "Updating todo failed." });
         }
     });
 
