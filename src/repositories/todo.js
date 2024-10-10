@@ -30,7 +30,7 @@ export default (db) => {
         return isUsingBefore ? result.reverse() : result;
     }
 
-    async function toggleCompleted(todoID, userID, completed) {
+    async function updateTodo(todoID, userID, updateFields) {
         return await collection.updateOne(
             {
                 todoID: todoID,
@@ -38,25 +38,13 @@ export default (db) => {
             },
             {
                 $set: {
-                    completed: completed
-                }
-            });
-    }
-
-    async function editName(todoID, userID, newName) {
-        return await collection.updateOne(
-            {
-                todoID: todoID,
-                userID: userID
-            },
-            {
-                $set: {
-                    name: newName
+                    ...updateFields
                 }
             });
     }
 
     async function deleteTodo(todoID, userID) {
+        console.log(todoID);
         return await collection.deleteOne({
             todoID: todoID,
             userID: userID
@@ -66,8 +54,7 @@ export default (db) => {
     return {
         insertOne,
         find,
-        toggleCompleted,
-        editName,
+        updateTodo,
         deleteTodo
     };
 };

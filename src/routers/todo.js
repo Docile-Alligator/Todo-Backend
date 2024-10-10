@@ -47,7 +47,7 @@ export default ({todoRepository}) => {
             if (req.query.findIncomplete === "true") {
                 let result = await todoRepository.find(req.query.before, req.query.after, Number(req.query.pageSize), { completed: false });
                 if (result.length === 0) {
-                    // No more todos
+                    // No more todos, so we don't send before and after.
                     return res.status(200).send({ result: result });
                 } else {
                     return res.status(200).send({ result: result, before: result[0].created, after: result[result.length - 1].created });
@@ -55,6 +55,7 @@ export default ({todoRepository}) => {
             } else {
                 let result = await todoRepository.find(req.query.before, req.query.after, Number(req.query.pageSize));
                 if (result.length === 0) {
+                    // No more todos, so we don't send before and after.
                     return res.status(200).send({ result: result });
                 } else {
                     return res.status(200).send({ result: result, before: result[0].created, after: result[result.length - 1].created });
@@ -63,7 +64,7 @@ export default ({todoRepository}) => {
         }
         catch (err) {
             console.error(err);
-            return res.status(500).send({error: "Fetching todos failed"});
+            return res.status(500).send({ error: "Fetching todos failed" });
         }
     });
 
@@ -76,23 +77,33 @@ export default ({todoRepository}) => {
         }
         catch (err) {
             console.error(err);
-            return res.status(500).send({error: "Deleting todo name failed."});
+            return res.status(500).send({ error: "Deleting todo name failed." });
         }
     });
 
     router.put('/', auth, async (req, res) => {
         try {
+            if (req.body.todoID === undefined) {
+                return res.status(400).send({ error: "Invalid field used." });
+            }
+
             let session = verifyToken(req.cookies['todox-session']);
 
+            let updateFields = {};
             if (req.body.completed !== undefined) {
-                let result = await todoRepository.toggleCompleted(req.body.todoID, session.userID, req.body.completed);
-                return res.status(200).send(result);
-            } else if (req.body.newTodoName !== undefined) {
-                let result = await todoRepository.editName(req.body.todoID, session.userID, req.body.newTodoName);
-                return res.status(200).send(result);
-            } else {
-                return res.status(400).send({ error: "Nothing to update" });
+                updateFields.completed = req.body.completed;
             }
+            if (req.body.newTodoName !== undefined) {
+                updateFields.name = req.body.newTodoName;
+            }
+
+            if (Object.keys(updateFields).length === 0) {
+                // You probably forget to send the fields that need to be updated.
+                return res.status(400).send({ error: "Nothing to update." });
+            }
+
+            let result = await todoRepository.updateTodo(req.body.todoID, session.userID, updateFields);
+            return res.status(200).send(result);
         }
         catch (err) {
             console.error(err);
