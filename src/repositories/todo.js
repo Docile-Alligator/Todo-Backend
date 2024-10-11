@@ -7,14 +7,14 @@ export default (db) => {
     }
 
     // Find todos that match certain condition and with pagination in mind.
-    async function find(before, after, pageSize, otherConditions = {}) {
+    async function find(userID, before, after, pageSize, otherConditions = {}) {
         let filter;
         let sort;
         let isUsingBefore = false;
 
         if (after !== 'undefined') {
             // We find a limited number of todos after the created time.
-            filter = { created: { $gt: after }, ...otherConditions };
+            filter = { userID: userID, created: { $gt: after }, ...otherConditions };
             sort = { created: 1 };
         } else if (before !== 'undefined') {
             /*
@@ -22,12 +22,12 @@ export default (db) => {
                 Notice that we are using sort = { created: -1 } since we need to look up the todos in reverse order,
                 otherwise we will always get the first few todos.
              */
-            filter = { created: { $lt: before }, ...otherConditions };
+            filter = { userID: userID, created: { $lt: before }, ...otherConditions };
             sort = { created: -1 };
             isUsingBefore = true;
         } else {
             // We find a limited number of todos for page 1 (no before or after).
-            filter = { ...otherConditions };
+            filter = { userID: userID, ...otherConditions };
             sort = { created: 1 };
         }
 

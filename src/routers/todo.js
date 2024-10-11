@@ -43,7 +43,7 @@ export default ({todoRepository}) => {
     // GET a list of todos based on criteria. Pagination is required.
     router.get('/', auth, async (req, res) => {
         try {
-            verifyToken(req.cookies['todox-session']);
+            let session = verifyToken(req.cookies['todox-session']);
 
             // The default pageSize is 3.
             let pageSize = req.query.pageSize === undefined ? 3 : Number(req.query.pageSize);
@@ -51,7 +51,7 @@ export default ({todoRepository}) => {
 
             if (req.query.findIncomplete === "true") {
                 // Here we fetch the incomplete list
-                let result = await todoRepository.find(req.query.before, req.query.after, pageSize, { completed: false });
+                let result = await todoRepository.find(session.userID, req.query.before, req.query.after, pageSize, { completed: false });
                 if (result.length === 0) {
                     // No more todos, so we don't send before and after.
                     return res.status(200).send({ result: result });
@@ -60,7 +60,7 @@ export default ({todoRepository}) => {
                 }
             } else {
                 // Here we fetch all the list
-                let result = await todoRepository.find(req.query.before, req.query.after, pageSize);
+                let result = await todoRepository.find(session.userID, req.query.before, req.query.after, pageSize);
                 if (result.length === 0) {
                     // No more todos, so we don't send before and after.
                     return res.status(200).send({ result: result });
