@@ -14,4 +14,4 @@ New code is written in:
 2. https://github.com/Docile-Alligator/Todo-Backend/blob/master/src/repositories/todo.js
 3. https://github.com/Docile-Alligator/Todo-Backend/blob/master/src/schemas/todo.js
 
-All requirments are met. For more details, checkout https://github.com/Docile-Alligator/Todo-Frontend/tree/master.
+All requirments are met. For more details, checkout https://github.com/Docile-Alligator/Todo-Frontend.
