@@ -40,12 +40,18 @@ export default ({todoRepository}) => {
         }
     });
 
+    // GET a list of todos based on criteria. Pagination is required.
     router.get('/', auth, async (req, res) => {
         try {
             verifyToken(req.cookies['todox-session']);
 
+            // The default pageSize is 3.
+            let pageSize = req.query.pageSize === undefined ? 3 : Number(req.query.pageSize);
+            pageSize = isNaN(pageSize) ? 3 : pageSize;
+
             if (req.query.findIncomplete === "true") {
-                let result = await todoRepository.find(req.query.before, req.query.after, Number(req.query.pageSize), { completed: false });
+                // Here we fetch the incomplete list
+                let result = await todoRepository.find(req.query.before, req.query.after, pageSize, { completed: false });
                 if (result.length === 0) {
                     // No more todos, so we don't send before and after.
                     return res.status(200).send({ result: result });
@@ -53,7 +59,8 @@ export default ({todoRepository}) => {
                     return res.status(200).send({ result: result, before: result[0].created, after: result[result.length - 1].created });
                 }
             } else {
-                let result = await todoRepository.find(req.query.before, req.query.after, Number(req.query.pageSize));
+                // Here we fetch all the list
+                let result = await todoRepository.find(req.query.before, req.query.after, pageSize);
                 if (result.length === 0) {
                     // No more todos, so we don't send before and after.
                     return res.status(200).send({ result: result });
@@ -68,20 +75,14 @@ export default ({todoRepository}) => {
         }
     });
 
-    router.delete('/', auth, async (req, res) => {
-        try {
-            let session = verifyToken(req.cookies['todox-session']);
-
-            let result = await todoRepository.deleteTodo(req.body.todoID, session.userID);
-            return res.status(200).send(result);
-        }
-        catch (err) {
-            console.error(err);
-            return res.status(500).send({ error: "Deleting todo name failed." });
-        }
-    });
-
-    router.put('/', auth, async (req, res) => {
+    /*
+        Update (PATCH) a todo.
+        We combine toggling completeness and editing the todo name to this PUT endpoint since these two are basically editing a todo.
+        We certainly can use two separate endpoints for editing different fields of the todo, since that separates the logic instead of
+        using if else to determine the field to update, but in this case, we would like to make it more RESTful and easy to inspect the API.
+        We use PATCH instead of PUT because we don't need to send all the todo fields to this endpoint.
+     */
+    router.patch('/', auth, async (req, res) => {
         try {
             if (req.body.todoID === undefined) {
                 return res.status(400).send({ error: "Invalid field used." });
@@ -91,9 +92,11 @@ export default ({todoRepository}) => {
 
             let updateFields = {};
             if (req.body.completed !== undefined) {
+                // Toggle completeness
                 updateFields.completed = req.body.completed;
             }
             if (req.body.newTodoName !== undefined) {
+                // Edit todo name
                 updateFields.name = req.body.newTodoName;
             }
 
@@ -108,6 +111,20 @@ export default ({todoRepository}) => {
         catch (err) {
             console.error(err);
             return res.status(500).send({ error: "Updating todo failed." });
+        }
+    });
+
+    // DELETE a todo.
+    router.delete('/', auth, async (req, res) => {
+        try {
+            let session = verifyToken(req.cookies['todox-session']);
+
+            let result = await todoRepository.deleteTodo(req.body.todoID, session.userID);
+            return res.status(200).send(result);
+        }
+        catch (err) {
+            console.error(err);
+            return res.status(500).send({ error: "Deleting todo name failed." });
         }
     });
 
