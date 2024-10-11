@@ -15,6 +15,11 @@ export default (db) => {
     }
 
     async function createIfNotExists(user) {
+        const existingUser = await findOneByUsername(user.username);
+        if (existingUser) {
+            return null;
+        }
+
         const result = await collection.findOneAndUpdate({
                 username: user.username
             },
