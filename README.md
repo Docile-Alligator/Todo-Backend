@@ -14,4 +14,6 @@ New code is written in:
 2. https://github.com/Docile-Alligator/Todo-Backend/blob/master/src/repositories/todo.js
 3. https://github.com/Docile-Alligator/Todo-Backend/blob/master/src/schemas/todo.js
 
-All requirments are met. For more details, checkout https://github.com/Docile-Alligator/Todo-Frontend.
+All requirments are met. Also fixed creating duplicate users.
+
+For more details, please check out https://github.com/Docile-Alligator/Todo-Frontend.
